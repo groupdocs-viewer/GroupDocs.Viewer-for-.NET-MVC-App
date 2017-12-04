@@ -1,7 +1,7 @@
 
 # GroupDocs.Viewer for .NET Modern UI
 
-This modern UI is based on ASP.NET MVC it is simple, efficient and, user friendly showcase project for  GroupDocs.Viewer for .NET. This application allows user to view document in Html and Image representation. User can view thumbnails, download and print document.
+ASP.NET MVC Modern UI Document Viewer that supports many different formats of documents like DOCX, PDF, XLSX, etc. and view them in a HTML and Image rendering and beside this the user is also able to view email, view email attachments and apply watermark text to the output pages with page navigation, zooming and many more features, [click here](https://docs.groupdocs.com/display/viewernet/Introduction+-+GroupDocs.Viewer+MVC+Modern+UI) for complete list of features. 
 
 # Pre-Requisites
 
@@ -19,3 +19,13 @@ This modern UI is based on ASP.NET MVC it is simple, efficient and, user friendl
 
 * Open Global.asax.cs.
 * Set license file path in _licensePath variable.
+
+## Resources
+
++ **Website:** [www.groupdocs.com](http://www.groupdocs.com)
++ **Product Home:** [GroupDocs.Viewer for .NET](https://products.groupdocs.com/viewer/net)
++ **Product API References:** [API of GroupDocs.Viewer for .NET](https://apireference.groupdocs.com/net/viewer)
++ **Download:** [Download GroupDocs.Viewer for .NET](http://downloads.groupdocs.com/viewer/net)
++ **Documentation:** [GroupDocs.Viewer for .NET Documentation](https://docs.groupdocs.com/display/viewernet/Home)
++ **Forum:** [GroupDocs.Viewer for .NET Forum](https://forum.groupdocs.com/c/viewer)
++ **Blog:** [GroupDocs.Viewer for .NET Blog](https://blog.groupdocs.com/category/groupdocs-viewer-product-family/)
