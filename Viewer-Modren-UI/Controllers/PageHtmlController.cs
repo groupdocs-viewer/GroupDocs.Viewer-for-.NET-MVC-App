@@ -40,6 +40,5 @@ namespace Viewer_Modren_UI.Controllers
             foreach (PageHtml pageHtml in list.Where(x => x.PageNumber == page)) { fullHtml = pageHtml.HtmlContent; };
             return Content(fullHtml);
         }
-
     }
 }

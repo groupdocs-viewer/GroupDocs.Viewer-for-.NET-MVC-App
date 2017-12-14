@@ -19,7 +19,7 @@ namespace Viewer_Modren_UI.Helpers
 {
     public class Utils
     {
-      
+
         private static string _storagePath = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
         private static string _tempPath = AppDomain.CurrentDomain.GetData("DataDirectory") + "\\temp";
         private static string _cachePath = AppDomain.CurrentDomain.GetData("DataDirectory") + "\\cache";
@@ -53,7 +53,7 @@ namespace Viewer_Modren_UI.Helpers
             }
             catch (Exception x)
             {
-                    throw x;
+                throw x;
             }
         }
         public static List<PageImage> LoadPageImageList(ref ViewerImageHandler handler, String filename, ref ImageOptions options)
@@ -213,7 +213,7 @@ namespace Viewer_Modren_UI.Helpers
             }
             return resultPath;
         }
-        public static List<PageHtml> LoadAttachmentHtmlList(ViewerHtmlHandler handler, String filename,String attahchment,HtmlOptions options)
+        public static List<PageHtml> LoadAttachmentHtmlList(ViewerHtmlHandler handler, String filename, String attahchment, HtmlOptions options)
         {
             try
             {
@@ -276,9 +276,9 @@ namespace Viewer_Modren_UI.Helpers
                     throw new ArgumentOutOfRangeException();
             }
         }
-       
-        
+
+
     }
-       
-    
+
+
 }

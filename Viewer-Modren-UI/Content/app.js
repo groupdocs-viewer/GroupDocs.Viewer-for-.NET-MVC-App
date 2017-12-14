@@ -72,7 +72,6 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
     $scope.ShowHideTools = {
         IsShowWatermark: ShowHideTools.IsShowWatermark,
         IsFileSelection: ShowHideTools.IsFileSelection,
-        IsShowWatermark: ShowHideTools.IsShowWatermark,
         IsShowImageToggle: ShowHideTools.IsShowImageToggle,
         IsThubmnailPanel: ShowHideTools.IsThubmnailPanel,
         IsShowZooming: ShowHideTools.IsShowZooming,
@@ -253,6 +252,7 @@ ngApp.controller('ThumbnailsController',
                 $scope.selected = item;
             });
         };
+
         $scope.onAttachmentThumbnailClick = function ($event, name, number) {
             $mdSidenav('left').toggle().then(function () {
                 location.hash = 'page-view-' + name + '-' + number;
@@ -361,45 +361,61 @@ ngApp.directive('iframeSetDimensionsOnload', [function () {
         restrict: 'A',
         link: function ($scope, element, attrs) {
             element.on('load', function () {
+                ZoomValue = (ZoomValue > 10 ? ZoomValue / 100 : ZoomValue);
+                ZoomValue = (ZoomValue <= 0.05 ? 0.05 : ZoomValue);
+                ZoomValue = (ZoomValue >= 6 ? 6 : ZoomValue);
+
                 var body = element[0].contentWindow.document.body,
                             html = element[0].contentWindow.document.documentElement,
                             height = Math.max(
-                                body.scrollHeight,
                                 body.offsetHeight,
                                 html.clientHeight,
                                 html.scrollHeight,
                                 html.offsetHeight
-                            );
+                        );
 
-                element.css('width', '100%');
-                element.css('height', parseInt(height) + 'px');
-                if ($scope.isImage) {
+                if (!EnableContextMenu)
+                    element[0].contentWindow.document.body.setAttribute("oncontextmenu", "return false;");
+
+                height = parseInt(height) + 50;
+
+                if (!ShowWatermark)
                     element[0].contentWindow.document.body.style = "text-align: center !important;";
+
+                if (isImageToggle)
+                    element[0].contentWindow.document.body.style = "text-align: center !important;";
+
+                element[0].style = "height:" + parseInt(height) + "px!important; width:100%!important; ";
+
+                height = (height * (parseFloat(ZoomValue) < 1 ? 1 : parseFloat(ZoomValue)));
+                height = parseInt(height);
+                height = parseInt(height) + 10;
+
+                if (ZoomValue > 1) {
+                    element[0].style = "zoom: " + ZoomValue + "; -moz-transform: scale(" + ZoomValue + "); -moz-transform-origin: 0 0; -o-transform: scale(" + ZoomValue + "); -o-transform-origin: 0 0; -webkit-transform: scale(" + ZoomValue + "); -webkit-transform-origin: 0 0; height:" + height + "px !important; width:100%!important; overflow: visible !important;";
                 }
-                resizeIFrame();
+                else {
+                    element[0].style = "zoom: " + ZoomValue + "; -moz-transform: scale(" + ZoomValue + "); -o-transform: scale(" + ZoomValue + "); -webkit-transform: scale(" + ZoomValue + "); height:" + height + "px !important; width:100%!important; overflow: visible !important;";
+                }
+
+                var selectObj = document.getElementById('zoomselect');
+                if (selectObj != undefined) {
+                    for (var i = 0; i < selectObj.options.length; i++) {
+                        if (selectObj.options[i].value == ZoomValue) {
+                            selectObj.options[i].selected = true;
+                        }
+                    }
+                }
+                var iframes = document.querySelectorAll("iframe");
+
+                TotalDocumentPages = parseInt(iframes.length);
+
+                UpdatePager();
             });
         }
     }
 }]);
 
-ngApp.directive('cardSetDimensions', function ($window) {
-    return {
-        link: function ($scope, element, attrs) {
-            ////element.css('height', $window.innerHeight*ZoomValue + 'px');
-            //element.css('width', '100%');
-            //var height = element.innerHeight;
-            //height = parseInt(height) + 10;
-            //height = (height * (parseFloat(ZoomValue) < 1 ? 1 : parseFloat(ZoomValue)));
-            //height = parseInt(height);
-            //element.css('height', parseInt(height) + 'px');
-            //console.log(height);
-            //if ($scope.isImage) {
-            //    //element.contentWindow.document.body.style = "text-align: center !important;";
-            //}
-            resizeIFrame();
-        }
-    }
-});
 
 ngApp.controller('AvailableFilesController', function AvailableFilesController($rootScope, $scope, FilesFactory, DocumentPagesFactory, FilePath) {
     $rootScope.list = FilesFactory.query();
