@@ -18,7 +18,7 @@ namespace Viewer_Modren_UI.Controllers
     public class PageResourceController : Controller
     {
         [Route("")]
-        public ActionResult Index(string file, int page, string resource )
+        public ActionResult Index(string file, int page, string resource)
         {
             ViewerHtmlHandler handler = Utils.CreateViewerHtmlHandler();
             List<int> pageNumberstoRender = new List<int>();
@@ -29,9 +29,9 @@ namespace Viewer_Modren_UI.Controllers
             o.PageNumber = page;
             o.CountPagesToRender = 1;
 
-            List<PageHtml> list = Utils.LoadPageHtmlList(handler,file, o);
-            List<HtmlResource> htmlResources = list.Where(x => x.PageNumber == page).Select(x=>x.HtmlResources).FirstOrDefault();
-            var fileResource =  htmlResources.Where(x => x.ResourceName == resource).FirstOrDefault();
+            List<PageHtml> list = Utils.LoadPageHtmlList(handler, file, o);
+            List<HtmlResource> htmlResources = list.Where(x => x.PageNumber == page).Select(x => x.HtmlResources).FirstOrDefault();
+            var fileResource = htmlResources.Where(x => x.ResourceName == resource).FirstOrDefault();
             string type = "";
             if (fileResource != null)
             {

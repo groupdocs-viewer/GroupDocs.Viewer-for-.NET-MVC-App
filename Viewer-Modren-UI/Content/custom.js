@@ -17,7 +17,6 @@ var EnableContextMenu = false;
 var ShowWatermark = true;
 var ShowImageToggle = true;
 var ShowZooming = true;
-var ShowZoomOut = true;
 var ShowRotateImage = true;
 var ShowDownloads = true;
 var ShowFileSelection = true;
@@ -40,7 +39,10 @@ function resizeIFrame() {
         var body = iframes[i].contentWindow.document.body,
         html = iframes[i].contentWindow.document.documentElement,
         height = Math.max(
+            body.scrollHeight,
             body.offsetHeight,
+            html.clientHeight,
+            html.scrollHeight,
             html.offsetHeight
         ),
         width = Math.max(
