@@ -2,12 +2,15 @@
 
 var ngApp = angular.module('GroupDocsViewer', ['ngMaterial', 'ngResource']);
 ngApp.value('FilePath', DefaultFilePath);
+ngApp.value('tabselectedIndex', 0);
 ngApp.value('isImage', isImageToggle);
 ngApp.value('Rotate', RotateAngel);
+
 ZoomValue = (ZoomValue > 10 ? ZoomValue / 100 : ZoomValue);
 ZoomValue = (ZoomValue <= 0.05 ? 0.05 : ZoomValue);
 ZoomValue = (ZoomValue >= 6 ? 6 : ZoomValue);
 ZoomValue = parseFloat(ZoomValue);
+
 ngApp.value('Zoom', ZoomValue);
 ngApp.value('TotalPages', TotalDocumentPages);
 ngApp.value('CurrentPage', 1);
@@ -48,15 +51,102 @@ ngApp.factory('DocumentPagesFactory', function ($resource) {
     });
 });
 
-ngApp.controller('ToolbarController', function ToolbarController($rootScope, $scope, $mdSidenav, isImage, Zoom, TotalPages, CurrentPage, Watermark, ShowHideTools, FilePath) {
+ngApp.controller('ToolbarController', function ToolbarController($rootScope, $scope, $http, $window, $mdSidenav, isImage, Zoom, TotalPages, CurrentPage, Watermark, ShowHideTools, FilePath, $mdDialog, FilesFactory, tabselectedIndex) {
+
+    $rootScope.tabselectedIndex = tabselectedIndex;
+    $scope.showTabDialog = function (ev) {
+        $mdDialog.show({
+            controller: DialogController,
+            contentElement: '#fuDialog',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true
+        })
+            .then(function (answer) {
+                $scope.status = 'You said the information was "' + answer + '".';
+            }, function () {
+                $scope.status = 'You cancelled the dialog.';
+            });
+    };
+
+    function DialogController($scope, $mdDialog) {
+        $scope.hide = function () {
+            $mdDialog.hide();
+        };
+        $scope.cancel = function () {
+            $mdDialog.cancel();
+        };
+        $scope.answer = function (answer) {
+            $mdDialog.hide(answer);
+        };
+    };
+
+    $scope.getFileDetails = function (e) {
+
+        $scope.files = [];
+        $scope.$apply(function () {
+            for (var i = 0; i < e.files.length; i++) {
+                $scope.files.push(e.files[i])
+            }
+
+        });
+    };
+
+    $scope.uploadFiles = function () {
+        var data = new FormData();
+
+        if ($scope.files != undefined) {
+
+            for (var i in $scope.files) {
+                data.append("uploadedFile", $scope.files[i]);
+            }
+
+            var objXhr = new XMLHttpRequest();
+            objXhr.addEventListener("progress", updateProgress, false);
+            objXhr.addEventListener("load", transferComplete, false);
+
+            objXhr.open("POST", "/fileUpload/");
+            objXhr.send(data);
+            document.getElementById('progress').style.display = 'block';
+            $scope.files = undefined;
+        }
+        else {
+            alert("Please select file to upload.");
+        }
+    };
+
+    function updateProgress(e) {
+        if (e.lengthComputable) {
+            document.getElementById('progress').style.display = 'block';
+            document.getElementById('progress').setAttribute('max', e.total);
+        }
+    };
+
+    function transferComplete(e) {
+        $rootScope.list = FilesFactory.query();
+        alert("Files uploaded successfully.");
+        document.getElementById('progress').style.display = 'none';
+        $rootScope.tabselectedIndex = 1;
+    };
+
+    $scope.uploadedFile = {};
+    $scope.uploadedFile.name = "";
+
     $scope.toggleLeft = function () {
         $mdSidenav('left').toggle().then(function () {
             $rootScope.$broadcast('md-sidenav-toggle-complete', $mdSidenav('left'));
         });
     };
+
     $scope.openMenu = function ($mdOpenMenu, ev) {
         $mdOpenMenu(ev);
     };
+
+    $scope.Zoom = ZoomValue;
+
+    $scope.TotalPages = TotalDocumentPages;
+    $scope.CurrentPage = CurrentPage;
+
     $scope.Watermark = {
         Text: Watermark.Text,
         Color: Watermark.Color,
@@ -64,10 +154,6 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
         Width: Watermark.Width,
         Opacity: Watermark.Opacity
     };
-    $scope.Zoom = ZoomValue;
-
-    $scope.TotalPages = TotalDocumentPages;
-    $scope.CurrentPage = CurrentPage;
 
     $scope.ShowHideTools = {
         IsShowWatermark: ShowHideTools.IsShowWatermark,
@@ -79,7 +165,9 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
         IsShowPagingPanel: ShowHideTools.IsShowPagingPanel,
         IsShowDownloads: ShowHideTools.IsShowDownloads
     };
+
     $scope.isImage = isImage;
+
     $scope.$on('selected-file-changed', function ($event, selectedFile) {
         $rootScope.selectedFile = selectedFile;
         DefaultFilePath = selectedFile;
@@ -90,6 +178,7 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
     };
 
     $scope.selected = false;
+
     $scope.zoomInDocument = function () {
         ZoomValue = (ZoomValue > 10 ? ZoomValue / 100 : ZoomValue);
         ZoomValue = (ZoomValue <= 0 ? 0.05 : ZoomValue);
@@ -100,8 +189,8 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
             $rootScope.$broadcast('zin-file', $rootScope.selectedFile);
         else
             resizeIFrame();
-
     };
+
     $scope.zoomOutDocument = function () {
         ZoomValue = (ZoomValue > 10 ? ZoomValue / 100 : ZoomValue);
         ZoomValue = (ZoomValue <= 0 ? 0.05 : ZoomValue);
@@ -113,8 +202,8 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
         else
             resizeIFrame();
     };
+
     $scope.zoomLevels = function (selectedzoomlevel) {
-        console.log(selectedzoomlevel);
         ZoomValue = parseFloat(selectedzoomlevel);
         Zoom = ZoomValue;
         if ($scope.isImage)
@@ -122,6 +211,7 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
         else
             resizeIFrame();
     }
+
     $scope.togelToImageDocument = function () {
         $rootScope.$broadcast('toggle-file', $rootScope.selectedFile);
         isImageToggle = !$scope.isImage;
@@ -145,14 +235,21 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
         }
     };
 
+    $scope.previousDocument = function () {
+        if ($rootScope.list.indexOf($rootScope.selectedFile) - 1 == -1) {
+            $rootScope.$broadcast('selected-file-changed', $rootScope.list[$rootScope.list.length - 1]);
+        }
+        else {
+            $rootScope.$broadcast('selected-file-changed', $rootScope.list[$rootScope.list.indexOf($rootScope.selectedFile) - 1]);
+        }
+    };
+
     $scope.navigatePage = function (options) {
         if ($rootScope.selectedFile) {
             TotalPages = parseInt(TotalDocumentPages);
             CurrentPage = parseInt(CurrentDocumentPage);
-            console.log('options:  ' + options + '  TotalDocumentPages: ' + TotalPages + '   CurrentPage: ' + CurrentPage);
 
             if (options == '+') {
-                console.log('+++++++CurrentPage: ' + CurrentPage);
                 CurrentPage += 1;
                 if (CurrentPage > TotalPages) {
                     CurrentPage = TotalPages;
@@ -160,7 +257,6 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
                 location.hash = 'page-view-' + CurrentPage;
             }
             else if (options == '-') {
-                console.log('-------CurrentPage: ' + CurrentPage);
                 CurrentPage -= 1;
 
                 if (CurrentPage < 1) {
@@ -178,7 +274,6 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
                 location.hash = 'page-view-' + TotalPages;
             }
             else {
-                console.log(' else event.target.value: ' + document.getElementById('inputcurrentpage').value);
                 if (document.getElementById('inputcurrentpage').value != '')
                     CurrentPage = parseInt(document.getElementById('inputcurrentpage').value);
                 if (CurrentPage > TotalPages) {
@@ -196,32 +291,10 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
             UpdatePager();
         }
     };
-
-    $scope.previousDocument = function () {
-        if ($rootScope.list.indexOf($rootScope.selectedFile) - 1 == -1) {
-            $rootScope.$broadcast('selected-file-changed', $rootScope.list[$rootScope.list.length - 1]);
-        }
-        else {
-            $rootScope.$broadcast('selected-file-changed', $rootScope.list[$rootScope.list.indexOf($rootScope.selectedFile) - 1]);
-        }
-    };
-});
-
-ngApp.directive('myEnter', function () {
-    return function (scope, element, attrs) {
-        element.bind("keydown keypress", function (event) {
-            if (event.which === 13) {
-                scope.$apply(function () {
-                    scope.$eval(attrs.myEnter);
-                });
-                event.preventDefault();
-            }
-        });
-    };
 });
 
 ngApp.controller('ThumbnailsController',
-    function ThumbnailsController($rootScope, $scope, $sce, $mdSidenav, DocumentPagesFactory, FilePath, Watermark, ShowHideTools, Rotate) {
+    function ThumbnailsController($rootScope, $scope, $sce, $mdSidenav, DocumentPagesFactory, FilePath, Watermark, ShowHideTools, Rotate, Zoom) {
         $scope.isLeftSidenavVislble = false;
         if (FilePath) {
             $rootScope.selectedFile = FilePath;
@@ -235,7 +308,6 @@ ngApp.controller('ThumbnailsController',
             $scope.docInfo = DocumentPagesFactory.query({
                 filename: selectedFile
             });
-
         });
         $scope.$on('md-sidenav-toggle-complete', function ($event, component) {
             $scope.isLeftSidenavVislble = component.isOpen();
@@ -253,10 +325,14 @@ ngApp.controller('ThumbnailsController',
             });
         };
 
-        $scope.onAttachmentThumbnailClick = function ($event, name, number) {
+        $scope.onAttachmentThumbnailClick = function ($event, name, number, attachment) {
             $mdSidenav('left').toggle().then(function () {
-                location.hash = 'page-view-' + name + '-' + number;
+                $scope.CurrentPage = parseInt(number);
+                CurrentDocumentPage = $scope.CurrentPage;
+                UpdatePager();
+                location.hash = 'page-view-' + number;
                 $rootScope.$broadcast('md-sidenav-toggle-complete', $mdSidenav('left'));
+                $scope.selected = attachment;
             });
         };
         $scope.createThumbnailUrl = function (selectedFile, itemNumber) {
@@ -268,7 +344,8 @@ ngApp.controller('ThumbnailsController',
                     + '&watermarkPosition=' + Watermark.Position
                     + '&watermarkWidth=' + Watermark.Width
                     + '&watermarkOpacity=' + Watermark.Opacity
-                    + '&rotate=' + Rotate);
+                    + '&rotate=' + Rotate
+                    + '&zoom=' + parseInt(Zoom * 100));
             }
         };
         $scope.createAttachmentThumbnailPageUrl = function (selectedFile, attachment, itemNumber) {
@@ -288,7 +365,7 @@ ngApp.controller('ThumbnailsController',
 );
 
 ngApp.controller('PagesController',
-    function ThumbnailsController($rootScope, $scope, $sce, $document, DocumentPagesFactory, FilePath, Watermark, ShowHideTools, isImage, Rotate, Zoom) {
+    function PagesController($rootScope, $scope, $sce, $document, DocumentPagesFactory, FilePath, Watermark, ShowHideTools, isImage, Rotate, Zoom) {
         if (FilePath) {
             $rootScope.selectedFile = FilePath;
             $scope.docInfo = DocumentPagesFactory.query({
@@ -302,6 +379,7 @@ ngApp.controller('PagesController',
                 filename: selectedFile
             });
         });
+
         $scope.$on('rotate-file', function (event, selectedFile) {
             $rootScope.selectedFile = selectedFile;
             if (Rotate <= 270)
@@ -309,18 +387,22 @@ ngApp.controller('PagesController',
             else
                 Rotate = 0;
         });
+
         $scope.$on('zin-file', function (event, selectedFile) {
             $rootScope.selectedFile = selectedFile;
             Zoom = ZoomValue;
         });
+
         $scope.$on('zout-file', function (event, selectedFile) {
             $rootScope.selectedFile = selectedFile;
             Zoom = ZoomValue;
         });
+
         $scope.$on('toggle-file', function (event, selectedFile) {
             $rootScope.selectedFile = selectedFile;
             isImage = !isImage;
         });
+
         $scope.createPageUrl = function (selectedFile, itemNumber) {
             if (isImage) {
                 return $sce.trustAsResourceUrl('/page/image?file='
@@ -343,6 +425,7 @@ ngApp.controller('PagesController',
                         + '&watermarkOpacity=' + Watermark.Opacity);
             }
         };
+
         $scope.createAttachmentPageUrl = function (selectedFile, attachmentName, itemNumber) {
             return $sce.trustAsResourceUrl('/attachment/html?file=' + selectedFile
                     + '&attachment=' + attachmentName
@@ -368,6 +451,7 @@ ngApp.directive('iframeSetDimensionsOnload', [function () {
                 var body = element[0].contentWindow.document.body,
                             html = element[0].contentWindow.document.documentElement,
                             height = Math.max(
+                                body.scrollHeight,
                                 body.offsetHeight,
                                 html.clientHeight,
                                 html.scrollHeight,
@@ -406,9 +490,6 @@ ngApp.directive('iframeSetDimensionsOnload', [function () {
                         }
                     }
                 }
-                var iframes = document.querySelectorAll("iframe");
-
-                TotalDocumentPages = parseInt(iframes.length);
 
                 UpdatePager();
             });
@@ -416,24 +497,29 @@ ngApp.directive('iframeSetDimensionsOnload', [function () {
     }
 }]);
 
-
-ngApp.controller('AvailableFilesController', function AvailableFilesController($rootScope, $scope, FilesFactory, DocumentPagesFactory, FilePath) {
+ngApp.controller('AvailableFilesController', function AvailableFilesController($rootScope, $scope, FilesFactory, DocumentPagesFactory, FilePath, $mdDialog) {
     $rootScope.list = FilesFactory.query();
-    if (FilePath) {
-        $rootScope.list = [FilePath];
-        $rootScope.selectedFile = $rootScope.list[0];
-        $rootScope.$broadcast('selected-file-changed', $rootScope.selectedFile);
-        $scope.docInfo = DocumentPagesFactory.query({
-            filename: FilePath
-        });
-    }
 
     $scope.onOpen = function () {
         $rootScope.list = FilesFactory.query();
-
     };
+
     $scope.onChange = function (item) {
+        $mdDialog.hide();
         $rootScope.$broadcast('selected-file-changed', item);
     };
 
+});
+
+ngApp.directive('myEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if (event.which === 13) {
+                scope.$apply(function () {
+                    scope.$eval(attrs.myEnter);
+                });
+                event.preventDefault();
+            }
+        });
+    };
 });
