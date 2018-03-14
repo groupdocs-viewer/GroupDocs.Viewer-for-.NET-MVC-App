@@ -19,11 +19,10 @@ namespace Viewer_Modren_UI.Controllers
         [Route("")]
         public ActionResult Get(string file, int page, string watermarkText, int? watermarkColor, WatermarkPosition? watermarkPosition, int? watermarkWidth, byte watermarkOpacity)
         {
-            
             if (Utils.IsValidUrl(file))
                 file = Utils.DownloadToStorage(file);
             ViewerHtmlHandler handler = Utils.CreateViewerHtmlHandler();
-            
+
             List<int> pageNumberstoRender = new List<int>();
             pageNumberstoRender.Add(page);
             HtmlOptions options = new HtmlOptions();
@@ -31,8 +30,8 @@ namespace Viewer_Modren_UI.Controllers
             options.PageNumbersToRender = pageNumberstoRender;
             options.PageNumber = page;
             options.CountPagesToRender = 1;
-            options.HtmlResourcePrefix = "/page/resource?file="+file+"&page="+page+"&resource=";
-            if(watermarkText!="")
+            options.HtmlResourcePrefix = "/page/resource?file=" + file + "&page=" + page + "&resource=";
+            if (watermarkText != "")
                 options.Watermark = Utils.GetWatermark(watermarkText, watermarkColor, watermarkPosition, watermarkWidth, watermarkOpacity);
 
             List<PageHtml> list = Utils.LoadPageHtmlList(handler, file, options);

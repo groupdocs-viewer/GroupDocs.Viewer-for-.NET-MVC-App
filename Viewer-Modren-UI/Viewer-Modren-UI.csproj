@@ -117,6 +117,7 @@
     <Compile Include="Controllers\AttachmentHtmlController.cs" />
     <Compile Include="Controllers\AttachmentImageController.cs" />
     <Compile Include="Controllers\AttachmentResourceController.cs" />
+    <Compile Include="Controllers\FileUploadController.cs" />
     <Compile Include="Controllers\DocumentInfoController.cs" />
     <Compile Include="Controllers\DownloadOriginalController.cs" />
     <Compile Include="Controllers\DownloadPdfController.cs" />

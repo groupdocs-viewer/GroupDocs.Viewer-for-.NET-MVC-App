@@ -105,7 +105,7 @@ ngApp.controller('ToolbarController', function ToolbarController($rootScope, $sc
             objXhr.addEventListener("progress", updateProgress, false);
             objXhr.addEventListener("load", transferComplete, false);
 
-            objXhr.open("POST", "/fileUpload/");
+            objXhr.open("POST", "/file/Upload/");
             objXhr.send(data);
             document.getElementById('progress').style.display = 'block';
             $scope.files = undefined;
