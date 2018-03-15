@@ -26,6 +26,15 @@ namespace Viewer_Modren_UI.Controllers
             if (Utils.IsValidUrl(file))
                 file = Utils.DownloadToStorage(file);
             ViewerImageHandler handler = Utils.CreateViewerImageHandler();
+
+            if (rotate.HasValue)
+            {
+                if (rotate.Value > 0)
+                {
+                    handler.ClearCache(file);
+                }
+            }
+
             ImageOptions options = new ImageOptions();
 
             options.PageNumbersToRender = new List<int>(new int[] { page });

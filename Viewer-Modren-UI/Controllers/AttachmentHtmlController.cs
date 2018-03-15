@@ -20,7 +20,7 @@ namespace Viewer_Modren_UI.Controllers
         [Route("")]
         public ActionResult Get(string file, string attachment, int page, string watermarkText, int? watermarkColor, WatermarkPosition? watermarkPosition, int? watermarkWidth, byte watermarkOpacity)
         {
-            var attachmentPath = "cache\\"+  Path.GetFileNameWithoutExtension(file) + Path.GetExtension(file).Replace(".", "_") + "\\attachments\\" + attachment;
+            var attachmentPath = "cache\\" + Path.GetFileNameWithoutExtension(file) + Path.GetExtension(file).Replace(".", "_") + "\\attachments\\" + attachment;
             ViewerHtmlHandler handler = Utils.CreateViewerHtmlHandler();
             var docInfo = handler.GetDocumentInfo(file);
             List<int> pageNumberstoRender = new List<int>();
@@ -29,11 +29,11 @@ namespace Viewer_Modren_UI.Controllers
             o.PageNumbersToRender = pageNumberstoRender;
             o.PageNumber = page;
             o.CountPagesToRender = 1;
-            o.HtmlResourcePrefix = "/attachment/resource?file="+file+"&attachment="+attachment+"&page="+page+"&resource=";
+            o.HtmlResourcePrefix = "/Attachment/Resource?file=" + file + "&attachment=" + attachment + "&page=" + page + "&resource=";
             if (watermarkText != "")
                 o.Watermark = Utils.GetWatermark(watermarkText, watermarkColor, watermarkPosition, watermarkWidth, watermarkOpacity);
             string fullHtml = "";
-            var attachmentFile = _cachePath +"\\" + Path.GetFileNameWithoutExtension(file) + Path.GetExtension(file).Replace(".", "_") + "\\attachments";
+            var attachmentFile = _cachePath + "\\" + Path.GetFileNameWithoutExtension(file) + Path.GetExtension(file).Replace(".", "_") + "\\attachments";
             if (Directory.Exists(attachmentFile.Replace(@"\\", @"\")))
             {
                 List<PageHtml> pages = handler.GetPages(attachmentPath, o);
@@ -41,7 +41,6 @@ namespace Viewer_Modren_UI.Controllers
             }
             else
             {
-               
                 foreach (AttachmentBase attachmentBase in docInfo.Attachments.Where(x => x.Name == attachment))
                 {
                     // Get attachment document html representation

@@ -2,7 +2,7 @@
 ///// DYNAMIC CONFIGURATIONS PARAMETERS WITH DEFAULT VALUES
 ///// ***************************************************** //////
 
-// All veriables are utilized in Index.cshtml & app.js files.
+// All veriables are utilized in index.cshtml & app.js files.
 
 var DefaultFilePath = 'calibre.docx';
 var isImageToggle = false;
@@ -24,14 +24,18 @@ var ShowThubmnailPanel = true;
 var ShowPagingPanel = true;
 var TotalDocumentPages = 0;
 var CurrentDocumentPage = 1;
+var iframes = [];
+var mdcards = [];
+var res = [];
+var lstHighlightedSpans = [];
 
 function resizeIFrame() {
+
     ZoomValue = (ZoomValue > 10 ? ZoomValue / 100 : ZoomValue);
     ZoomValue = (ZoomValue <= 0.05 ? 0.05 : ZoomValue);
     ZoomValue = (ZoomValue >= 6 ? 6 : ZoomValue);
 
-    var mdcards = document.querySelectorAll("md-card");
-    var iframes = document.querySelectorAll("iframe");
+    mdcards = document.querySelectorAll("md-card");
 
     TotalDocumentPages = parseInt(iframes.length);
 
@@ -86,7 +90,6 @@ function resizeIFrame() {
             }
         }
     }
-
     UpdatePager();
     FocusSelectedPage();
 }
@@ -101,6 +104,11 @@ function FocusSelectedPage() {
 }
 
 function UpdatePager() {
+    mdcards = document.querySelectorAll("md-card");
+    iframes = document.querySelectorAll("iframe");
+
+    TotalDocumentPages = parseInt(iframes.length);
+
     document.getElementById('spantoolpager').innerHTML = ' of ' + TotalDocumentPages;
     document.getElementById('inputcurrentpage').value = CurrentDocumentPage;
 
@@ -111,6 +119,7 @@ function UpdatePager() {
                 element[0].className = '';
                 if (i == CurrentDocumentPage) {
                     element[0].className = 'selectedthumbnail';
+                    element[0].focus();
                 }
             }
         }
