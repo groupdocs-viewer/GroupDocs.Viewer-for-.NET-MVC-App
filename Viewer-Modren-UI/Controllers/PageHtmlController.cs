@@ -30,6 +30,13 @@ namespace Viewer_Modren_UI.Controllers
             options.PageNumbersToRender = pageNumberstoRender;
             options.PageNumber = page;
             options.CountPagesToRender = 1;
+
+            if (Path.GetExtension(file).ToLower().StartsWith(".xls"))
+            {
+                options.CellsOptions.OnePagePerSheet = false;
+                options.CellsOptions.CountRowsPerPage = 150;
+            }
+
             options.HtmlResourcePrefix = "/page/resource?file=" + file + "&page=" + page + "&resource=";
             if (watermarkText != "")
                 options.Watermark = Utils.GetWatermark(watermarkText, watermarkColor, watermarkPosition, watermarkWidth, watermarkOpacity);
