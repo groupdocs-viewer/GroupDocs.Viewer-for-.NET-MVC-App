@@ -1,3 +1,7 @@
+![Outdated](http://alexbobkov.com/resources/image/outdated.png)
+  
+This repository is outdated, instead please use following repository:  
+https://github.com/groupdocs-viewer/GroupDocs.Viewer-for-.NET-MVC
 
 # GroupDocs.Viewer for .NET Modern UI
 
